@@ -1,8 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
+import { fetchData } from "../../common/axiosInstance";
 
 const AdminPreview = () => {
+    const [totalGigs, setTotalGigs] = useState(0);
+    const [totalProjects, setTotalProjects] = useState(0);
+
+    useEffect(() => {
+        const fetchGigs = async () => {
+            try {
+                const data = await fetchData("/gigs/all");
+                const gigsArray = Array.isArray(data) ? data : data?.gigs || [];
+                setTotalGigs(data?.total || gigsArray.length); // total gigs count
+                console.log("Fetched gigs:", data);
+            } catch (error) {
+                console.error("Failed to fetch gigs:", error);
+                setTotalGigs(0);
+            }
+        };
+
+        const fetchProjects = async () => {
+            try {
+                const data = await fetchData("/projects/all");
+                const projectsArray = Array.isArray(data) ? data : data?.projects || [];
+                setTotalProjects(data?.total || projectsArray.length); // total projects count
+            } catch (error) {
+                console.error("Failed to fetch projects:", error);
+                setTotalProjects(0);
+            }
+        };
+        fetchGigs();
+        fetchProjects();
+    }, []);
+
     const chartData = [
         { date: 'Dec10', allProjects: 2400, activeMembers: 400, allGigs: 1100 },
         { date: 'Dec14', allProjects: 2450, activeMembers: 420, allGigs: 1150 },
@@ -116,7 +147,7 @@ const AdminPreview = () => {
                                     <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
                                     <span className="text-sm text-gray-600">All Projects</span>
                                 </div>
-                                <span className="text-lg font-bold text-gray-900">2,605</span>
+                                <span className="text-lg font-bold text-gray-900">{totalProjects}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
@@ -130,7 +161,7 @@ const AdminPreview = () => {
                                     <div className="w-3 h-3 rounded-full bg-pink-500 mr-2"></div>
                                     <span className="text-sm text-gray-600">All Gigs</span>
                                 </div>
-                                <span className="text-lg font-bold text-gray-900">1,233</span>
+                                <span className="text-lg font-bold text-gray-900">{totalGigs}</span>
                             </div>
                         </div>
 

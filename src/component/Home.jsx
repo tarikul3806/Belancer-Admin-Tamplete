@@ -1,5 +1,6 @@
 import ActiveGig from "./Home/ActiveGig";
 import AdminPreview from "./Home/AdminPreview";
+import ProjectTracking from "./Home/ProjectTracking";
 import StatsCards from "./Home/statsCards";
 import Layout from "./Layout/Layout";
 
@@ -10,6 +11,7 @@ const Home = () => {
             <AdminPreview />
             {/* <StatsCards /> */}
             <ActiveGig />
+            <ProjectTracking />
         </Layout>
     );
 };

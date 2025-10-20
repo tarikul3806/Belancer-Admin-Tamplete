@@ -25,25 +25,22 @@ const ActiveGig = () => {
 
 
     const stateData = [
-        { state: 'California', orders: 12202, sales: 150200 },
-        { state: 'Texas', orders: 11950, sales: 147715 },
-        { state: 'New York', orders: 11198, sales: 120322 },
-        { state: 'Kansas', orders: 8560, sales: 102803 }
+        { state: 'California', orders: 12202 },
+        { state: 'Texas', orders: 11950 },
+        { state: 'New York', orders: 11198 },
+        { state: 'Kansas', orders: 8560 }
     ];
 
     const formatNumber = (num) => {
         return num.toLocaleString();
     };
 
-    const formatCurrency = (num) => {
-        return '$' + num.toLocaleString();
-    };
 
     return (
         <div className="flex flex-1 gap-6 pt-8">
-            <div className="bg-white rounded-xl shadow-sm p-8 max-w-md">
+            <div className="bg-white rounded-xl p-8 shadow-sm w-1/3">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between gap-12 mb-6">
                     <h2 className="text-2xl font-bold text-gray-900">Traffic Channels</h2>
                     <div className="relative">
                         <select
@@ -62,15 +59,14 @@ const ActiveGig = () => {
                 </div>
 
                 {/* Map */}
-                <div className="mb-8 bg-gray-50 rounded-lg">
-                    <img className="h-fit" src="../../../src/assets/map/Maps.png" alt="" />
+                <div className="rounded-lg">
+                    <img className="mx-auto w-[258px] h-fit" src="../../../src/assets/map/Maps.png" alt="" />
                 </div>
 
                 {/* Table Headers */}
                 <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">States</div>
                     <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Orders</div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Sales</div>
                 </div>
 
                 {/* Data Rows */}
@@ -79,7 +75,6 @@ const ActiveGig = () => {
                         <div key={index} className="grid grid-cols-3 gap-4 py-3 border-t border-gray-100 hover:bg-gray-50 transition-colors">
                             <div className="text-sm font-medium text-gray-900">{data.state}</div>
                             <div className="text-sm text-gray-700 text-right">{formatNumber(data.orders)}</div>
-                            <div className="text-sm text-gray-900 font-medium text-right">{formatCurrency(data.sales)}</div>
                         </div>
                     ))}
                 </div>
@@ -87,7 +82,7 @@ const ActiveGig = () => {
 
 
             {/* Active Gigs */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm w-2/3">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-semibold text-gray-900">Active Gigs</h2>
                     <p className="text-gray-700 text-2xl font-medium">
@@ -138,8 +133,8 @@ const ActiveGig = () => {
 
                                     {/* Title */}
                                     <td className="py-3 px-4 font-medium text-gray-900 truncate max-w-xs">
-                                        {gig.title?.length > 60
-                                            ? gig.title.slice(0, 60) + "..."
+                                        {gig.title?.length > 30
+                                            ? gig.title.slice(0, 30) + "..."
                                             : gig.title}
                                     </td>
 
