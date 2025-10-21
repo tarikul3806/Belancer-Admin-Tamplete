@@ -6,11 +6,16 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import AdminLogin from './pages/AdminLogin.jsx';
+import AdminGuard from './routes/AdminGuard.jsx';
 
 const router = createBrowserRouter([
+  { path: "/admin/login", element: <AdminLogin /> },
   {
-    path: "/",
-    element: <App />,
+    element: <AdminGuard />,
+    children: [
+      { path: "/", element: <App /> },
+    ],
   },
 ]);
 

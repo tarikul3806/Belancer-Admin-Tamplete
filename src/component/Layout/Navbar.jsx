@@ -1,15 +1,29 @@
 import React from 'react';
 import { LayoutGrid, Users, Briefcase, User, Bell } from 'lucide-react';
+import { Link, useNavigate } from "react-router-dom";
+import api from "../../common/axiosInstance";
+import { isAdmin, clearToken } from "../../utils/auth";
+
 
 export default function Navbar() {
-    const [activeTab, setActiveTab] = React.useState('Projects');
 
-    const navItems = [
-        { id: 'Dashboard', icon: LayoutGrid, label: 'Dashboard' },
-        { id: 'Projects', icon: Users, label: 'Projects' },
-        { id: 'Gigs', icon: Briefcase, label: 'Gigs' },
-        { id: 'Others', icon: User, label: 'Others' },
-    ];
+    const loggedIn = isAdmin();
+    const navigate = useNavigate();
+
+    function logout() {
+        clearToken();
+        delete api.defaults.headers.common["Authorization"];
+        navigate("/admin/login", { replace: true });
+    }
+
+    // const [activeTab, setActiveTab] = React.useState('Projects');
+
+    // const navItems = [
+    //     { id: 'Dashboard', icon: LayoutGrid, label: 'Dashboard' },
+    //     { id: 'Projects', icon: Users, label: 'Projects' },
+    //     { id: 'Gigs', icon: Briefcase, label: 'Gigs' },
+    //     { id: 'Others', icon: User, label: 'Others' },
+    // ];
 
     return (
         <nav className="bg-white border border-[#E8E8E8] w-full h-[72px]">
@@ -51,8 +65,16 @@ export default function Navbar() {
                         <Bell className="w-5 h-5 text-gray-600" />
                     </button>
 
+                    <div>
+                        {loggedIn ? (
+                            <button onClick={logout} className="border text-black px-2 py-1 rounded-lg">Log out</button>
+                        ) : (
+                            <Link to="/admin/login" className="border text-black px-2 py-1 rounded-lg">Log in</Link>
+                        )}
+                    </div>
+
                     {/* User Profile */}
-                    <div className="flex items-center gap-3">
+                    {/* <div className="flex items-center gap-3">
                         <img
                             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop"
                             alt="Akmal Hossain"
@@ -62,7 +84,7 @@ export default function Navbar() {
                             <span className="text-sm font-semibold text-gray-900">Akmal Hossain</span>
                             <span className="text-xs text-gray-500">Admin</span>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </nav>
