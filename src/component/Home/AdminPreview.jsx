@@ -6,6 +6,7 @@ import { fetchData } from "../../common/axiosInstance";
 const AdminPreview = () => {
     const [totalGigs, setTotalGigs] = useState(0);
     const [totalProjects, setTotalProjects] = useState(0);
+    const [activeMembers, setActiveMembers] = useState(0);
 
     useEffect(() => {
         const fetchGigs = async () => {
@@ -30,8 +31,27 @@ const AdminPreview = () => {
                 setTotalProjects(0);
             }
         };
+
+        const fetchAllUsers = async () => {
+            try {
+                const data = await fetchData("/auth/admin/users");
+                // Support either an array response or an object with `users` (and optionally `total_active`)
+                const usersArray = Array.isArray(data) ? data : data?.users || [];
+                const computedActive =
+                    typeof data?.total_active === "number"
+                        ? data.total_active
+                        : usersArray.filter(u => u?.is_verified === true).length || usersArray.length;
+
+                setActiveMembers(computedActive);
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
+                setActiveMembers(0);
+            }
+        };
+
         fetchGigs();
         fetchProjects();
+        fetchAllUsers();
     }, []);
 
     const chartData = [
@@ -154,7 +174,7 @@ const AdminPreview = () => {
                                     <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
                                     <span className="text-sm text-gray-600">Active Members</span>
                                 </div>
-                                <span className="text-lg font-bold text-gray-900">78</span>
+                                <span className="text-lg font-bold text-gray-900">{activeMembers}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
