@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { fetchData } from "../../common/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const ActiveGig = () => {
     const [gigs, setGigs] = useState([]);
     const [totalGigs, setTotalGigs] = useState(0);
     const [selectedCountry, setSelectedCountry] = useState('USA');
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchGigs = async () => {
@@ -153,6 +156,15 @@ const ActiveGig = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                <div className="mt-4 flex justify-end">
+                    <button
+                        onClick={() => navigate("/admin/gigs")}
+                        className="text-black px-3 py-1 border border-gray-400 rounded-full hover:bg-gray-100"
+                    >
+                        View All
+                    </button>
                 </div>
             </div>
         </div>

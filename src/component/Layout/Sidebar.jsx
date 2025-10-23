@@ -2,17 +2,17 @@ import { BarChart3, FileText, Settings, HelpCircle, LogOut } from 'lucide-react'
 import { MdDashboard } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { GrTransaction } from "react-icons/gr";
-import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
-    const [activeTab, setActiveTab] = useState('Dashboard');
 
     const navItems = [
-        { icon: MdDashboard, label: 'Dashboard', id: 'Dashboard' },
-        { icon: FileText, label: 'Projects', id: 'Projects' },
-        { icon: FileText, label: 'Gigs', id: 'Gigs' },
-        { icon: GrTransaction, label: 'Transaction', id: 'Transaction' },
+        { icon: MdDashboard, label: 'Dashboard', to: '/' },
+        { icon: FileText, label: 'Projects', to: '/admin/projects' },
+        { icon: FileText, label: 'Gigs', to: '/admin/gigs' },
+        { icon: GrTransaction, label: 'Transaction', to: '/admin/transaction' },
     ];
+
 
     return (
         <div className="flex flex-col h-full">
@@ -23,18 +23,18 @@ const Sidebar = () => {
 
             <nav className="flex-1 overflow-y-auto mt-1">
                 {navItems.map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setActiveTab(item.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 mb-1 transition-colors ${activeTab === item.id ? 'bg-[#0088FF] text-white' : 'hover:bg-[#0088FF]'
-                            }`}
+                    <NavLink
+                        key={item.to}
+                        to={item.to}
+                        end={item.to === '/'}
+                        className={({ isActive }) =>
+                            `w-full flex items-center gap-3 px-4 py-3 mb-1 rounded transition-colors
+                            ${isActive ? 'bg-[#0088FF] text-white' : 'hover:bg-[#0088FF] hover:text-white'}`
+                        }
                     >
-                        <item.icon
-                            className={`${activeTab === item.id ? 'text-white' : 'text-[#84818A]'}`}
-                            size={20}
-                        />
+                        <item.icon className="text-current" size={20} />
                         <span>{item.label}</span>
-                    </button>
+                    </NavLink>
                 ))}
 
                 <div className="border-t border-gray-700 my-4"></div>

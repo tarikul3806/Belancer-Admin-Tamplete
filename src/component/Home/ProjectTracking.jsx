@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchData } from "../../common/axiosInstance";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronDown } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const data = [
     { month: 'Jan', value: 40, secondaryValue: 30 },
@@ -34,6 +35,8 @@ const ProjectTracking = () => {
     const [projects, setProjects] = useState([]);
     const [totalProjects, setTotalProjects] = useState(0);
     const [selectedYear, setSelectedYear] = useState('2025');
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -63,7 +66,7 @@ const ProjectTracking = () => {
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-semibold text-gray-900">Active Projects</h2>
                     <p className="text-gray-700 text-2xl font-medium">
-                        Total Gig: <span className="text-gray-900 text-2xl font-semibold">{totalProjects}</span>
+                        Total Projects: <span className="text-gray-900 text-2xl font-semibold">{totalProjects}</span>
                     </p>
                 </div>
 
@@ -72,7 +75,7 @@ const ProjectTracking = () => {
                     <table className="min-w-full text-left text-sm text-gray-700">
                         <thead>
                             <tr className="border-b border-gray-200 text-gray-600 text-sm font-medium">
-                                <th className="py-3 px-4">Seller Id</th>
+                                <th className="py-3 px-4">Project Id</th>
                                 <th className="py-3 px-4">Image</th>
                                 <th className="py-3 px-4">Title</th>
                                 <th className="py-3 px-4">Status</th>
@@ -128,6 +131,15 @@ const ProjectTracking = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                <div className="mt-4 flex justify-end">
+                    <button
+                        onClick={() => navigate("/admin/projects")}
+                        className="text-black px-3 py-1 border border-gray-400 rounded-full hover:bg-gray-100"
+                    >
+                        View All
+                    </button>
                 </div>
             </div>
 

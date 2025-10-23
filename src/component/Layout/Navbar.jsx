@@ -16,47 +16,10 @@ export default function Navbar() {
         navigate("/admin/login", { replace: true });
     }
 
-    // const [activeTab, setActiveTab] = React.useState('Projects');
-
-    // const navItems = [
-    //     { id: 'Dashboard', icon: LayoutGrid, label: 'Dashboard' },
-    //     { id: 'Projects', icon: Users, label: 'Projects' },
-    //     { id: 'Gigs', icon: Briefcase, label: 'Gigs' },
-    //     { id: 'Others', icon: User, label: 'Others' },
-    // ];
 
     return (
-        <nav className="bg-white border border-[#E8E8E8] w-full h-[72px]">
-            <div className="flex items-center justify-end px-6 py-4">
-                {/* Logo */}
-                {/* <div className="flex items-center">
-                    <h1 className="text-3xl font-bold text-gray-900">deshwork</h1>
-                </div> */}
-
-                {/* Navigation Items */}
-                {/* <div className="flex items-center gap-2 bg-white rounded-lg p-1.5 shadow-sm">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = activeTab === item.id;
-
-                        return (
-                            <button
-                                key={item.id}
-                                onClick={() => setActiveTab(item.id)}
-                                className={`
-                                    flex items-center gap-2 px-6 py-2.5 rounded-md transition-all
-                                    ${isActive
-                                        ? 'bg-blue-500 text-white shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                                    }
-                                `}
-                            >
-                                <Icon className="w-4 h-4" />
-                                <span className="font-medium">{item.label}</span>
-                            </button>
-                        );
-                    })}
-                </div> */}
+        <nav className="flex justify-end items-center bg-white border border-[#E8E8E8] w-full h-[72px]">
+            <div className="px-6 py-6">
 
                 {/* Right Section */}
                 <div className="flex items-center gap-4">
