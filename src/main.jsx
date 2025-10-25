@@ -11,6 +11,7 @@ import AdminGuard from './routes/AdminGuard.jsx';
 import AllGigs from './pages/AllGigs.jsx';
 import Layout from './component/Layout/Layout.jsx';
 import AllProjects from './pages/AllProjects.jsx';
+import Transaction from './pages/Transaction.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -29,6 +30,13 @@ const router = createBrowserRouter([
         path: "/admin/projects", element: (
           <Layout>
             <AllProjects />
+          </Layout>
+        )
+      },
+      {
+        path: "/admin/transaction", element: (
+          <Layout>
+            <Transaction />
           </Layout>
         )
       },
