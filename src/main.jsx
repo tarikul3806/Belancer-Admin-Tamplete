@@ -12,6 +12,7 @@ import AllGigs from './pages/AllGigs.jsx';
 import Layout from './component/Layout/Layout.jsx';
 import AllProjects from './pages/AllProjects.jsx';
 import Transaction from './pages/Transaction.jsx';
+import Withdraw from './pages/Withdraw.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -37,6 +38,13 @@ const router = createBrowserRouter([
         path: "/admin/transaction", element: (
           <Layout>
             <Transaction />
+          </Layout>
+        )
+      },
+      {
+        path: "/admin/withdraw", element: (
+          <Layout>
+            <Withdraw />
           </Layout>
         )
       },
