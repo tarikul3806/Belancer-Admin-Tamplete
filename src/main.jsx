@@ -12,7 +12,7 @@ import AllGigs from './pages/AllGigs.jsx';
 import Layout from './component/Layout/Layout.jsx';
 import AllProjects from './pages/AllProjects.jsx';
 import Transaction from './pages/Transaction.jsx';
-import Withdraw from './pages/Withdraw.jsx';
+import Withdraw from './pages/Withdraw/Withdraw.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
