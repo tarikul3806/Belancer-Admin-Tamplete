@@ -80,7 +80,9 @@ const AdminPreview = () => {
                     fetchAllItems("/gigs/all", ["gigs", "results", "data", "items"]),
                     fetchData("/auth/admin/users"),
                 ]);
-                const users = Array.isArray(usersRaw) ? usersRaw : (usersRaw?.users || usersRaw || []);
+                const users = normalizeArray(usersRaw, ["users", "results", "data", "items"]);
+                setUsersAll(users);
+
                 setProjectsAll(projects);
                 setGigsAll(gigs);
                 setUsersAll(users);
@@ -99,9 +101,9 @@ const AdminPreview = () => {
         const mStart = startOfMonth(currentYear, selectedMonth);
         const mEnd = endOfMonth(currentYear, selectedMonth);
 
-        const monthProjects = projectsAll.filter(p => isInMonthYear(pickDate(p), currentYear, selectedMonth));
-        const monthGigs = gigsAll.filter(g => isInMonthYear(pickDate(g), currentYear, selectedMonth));
-        const monthActiveUsers = usersAll.filter(u => {
+        const monthProjects = projectsAll?.filter(p => isInMonthYear(pickDate(p), currentYear, selectedMonth));
+        const monthGigs = gigsAll?.filter(g => isInMonthYear(pickDate(g), currentYear, selectedMonth));
+        const monthActiveUsers = usersAll?.filter(u => {
             const created = pickDate(u, ["date_created", "created_at", "createdAt"]);
             const isActive = u?.is_verified === true || u?.is_active === true;
             return isActive && isInMonthYear(created, currentYear, selectedMonth);
