@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { Users, FileText, Settings } from 'lucide-react';
 import { MdDashboard } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { GrTransaction } from "react-icons/gr";
@@ -8,6 +8,7 @@ const Sidebar = () => {
 
     const navItems = [
         { icon: MdDashboard, label: 'Dashboard', to: '/' },
+        { icon: Users, label: 'Users', to: '/admin/users' },
         { icon: FileText, label: 'Projects', to: '/admin/projects' },
         { icon: FileText, label: 'Gigs', to: '/admin/gigs' },
         { icon: GrTransaction, label: 'Transaction', to: '/admin/transaction' },
@@ -46,11 +47,6 @@ const Sidebar = () => {
                 </button>
 
             </nav>
-
-            <button className="flex items-center gap-3 px-7 py-4 hover:bg-gray-800 transition-colors">
-                <LogOut size={20} />
-                <span>Log Out</span>
-            </button>
         </div>
     );
 };

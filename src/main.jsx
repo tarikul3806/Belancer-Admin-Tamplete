@@ -13,6 +13,7 @@ import Layout from './component/Layout/Layout.jsx';
 import AllProjects from './pages/AllProjects.jsx';
 import Transaction from './pages/Transaction.jsx';
 import Withdraw from './pages/Withdraw/Withdraw.jsx';
+import AllUsers from './pages/Users/AllUsers.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -20,6 +21,13 @@ const router = createBrowserRouter([
     element: <AdminGuard />,
     children: [
       { path: "/", element: <App /> },
+      {
+        path: "/admin/users", element: (
+          <Layout>
+            <AllUsers />
+          </Layout>
+        )
+      },
       {
         path: "/admin/gigs", element: (
           <Layout>
