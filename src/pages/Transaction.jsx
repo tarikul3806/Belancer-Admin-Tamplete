@@ -219,8 +219,10 @@ const Transaction = () => {
                                 const action = String(tx.transaction_type ?? "").replace(/\b\w/g, s => s.toUpperCase());
                                 const commission = toMoney(tx.commission ?? 0);
                                 const signedAmount =
-                                    (String(tx.transaction_type).toLowerCase() === "withdrawal" ? -1 : 1) *
+                                    (String(tx.transaction_type).toLowerCase() === "withdrawal" && String(tx.status).toLocaleLowerCase() === "success" ? -1 : 1) *
                                     Number(tx.amount ?? 0);
+                                const typeKey = String(tx.transaction_type ?? "").toLowerCase();
+                                const isWithdrawalCancelled = typeKey === "withdrawal" && (statusKey === "cancelled" || statusKey === "canceled");
 
                                 return (
                                     <tr key={`${tx.transaction_ref}-${idx}`} className="hover:bg-gray-50">
@@ -242,9 +244,13 @@ const Transaction = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div
-                                                className={`text-sm font-medium ${signedAmount < 0 ? "text-red-600" : "text-green-600"
+                                                className={`text-sm font-medium ${(signedAmount < 0 || isWithdrawalCancelled) ? "text-red-600" : "text-green-600"
                                                     }`}
-                                                aria-label={signedAmount < 0 ? "Debit amount" : "Credit amount"}
+                                                aria-label={
+                                                    isWithdrawalCancelled
+                                                        ? "Cancelled withdrawal amount"
+                                                        : (signedAmount < 0 ? "Debit amount" : "Credit amount")
+                                                }
                                             >
                                                 {toMoney(signedAmount)}
                                             </div>
