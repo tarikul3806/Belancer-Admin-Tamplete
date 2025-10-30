@@ -96,8 +96,42 @@ const Transaction = () => {
         return `${sign}${symbol}${Math.abs(num).toFixed(2)}`;
     };
 
+
+    const normalize = (v) => String(v || "").toLowerCase();
+
+    const getAmountPresentation = (actionRaw, statusRaw, amount, currency = "USD") => {
+        const action = normalize(actionRaw);
+        const status = normalize(statusRaw);
+        const base = toMoney(Math.abs(Number(amount || 0)), currency);
+
+        const isSuccess = status === "success" || status === "confirmed";
+        const isPending = status === "pending" || status === "processing";
+        const isFailedLike = ["failed", "cancelled", "canceled", "rejected"].includes(status);
+
+        let text = base;
+        let cls = "text-gray-600";
+        let aria = `${action} ${status || "unknown"}`;
+
+        if (isSuccess) {
+            if (action === "deposit") { text = `+${base}`; cls = "text-green-600"; aria = "Credit amount (success)"; }
+            if (action === "withdrawal") { text = `-${base}`; cls = "text-red-600"; aria = "Debit amount (success)"; }
+        } else if (isPending) {
+            text = base;
+            cls = "text-yellow-600";
+            aria = `${action} pending`;
+        } else if (isFailedLike) {
+            text = base;
+            cls = "text-red-600";
+            aria = `${action} ${status}`;
+        }
+
+        return { text, cls, aria };
+    };
+
+
+
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
             <div className="mx-auto bg-white rounded-lg shadow-sm">
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200">
@@ -218,12 +252,6 @@ const Transaction = () => {
                                 const statusCls = statusClasses[statusKey] ?? "text-gray-600";
                                 const action = String(tx.transaction_type ?? "").replace(/\b\w/g, s => s.toUpperCase());
                                 const commission = toMoney(tx.commission ?? 0);
-                                const signedAmount =
-                                    (String(tx.transaction_type).toLowerCase() === "withdrawal" && String(tx.status).toLocaleLowerCase() === "success" ? -1 : 1) *
-                                    Number(tx.amount ?? 0);
-                                const typeKey = String(tx.transaction_type ?? "").toLowerCase();
-                                const isWithdrawalCancelled = typeKey === "withdrawal" && (statusKey === "cancelled" || statusKey === "canceled");
-
                                 return (
                                     <tr key={`${tx.transaction_ref}-${idx}`} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -243,17 +271,19 @@ const Transaction = () => {
                                             <div className="text-sm text-gray-900">{commission}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div
-                                                className={`text-sm font-medium ${(signedAmount < 0 || isWithdrawalCancelled) ? "text-red-600" : "text-green-600"
-                                                    }`}
-                                                aria-label={
-                                                    isWithdrawalCancelled
-                                                        ? "Cancelled withdrawal amount"
-                                                        : (signedAmount < 0 ? "Debit amount" : "Credit amount")
-                                                }
-                                            >
-                                                {toMoney(signedAmount)}
-                                            </div>
+                                            {(() => {
+                                                const { text, cls, aria } = getAmountPresentation(
+                                                    tx.transaction_type,
+                                                    tx.status,
+                                                    tx.amount,
+                                                    tx.currency || "USD"
+                                                );
+                                                return (
+                                                    <div className={`text-sm font-medium ${cls}`} aria-label={aria}>
+                                                        {text}
+                                                    </div>
+                                                );
+                                            })()}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm text-gray-700 font-mono">{tx.transaction_ref || "—"}</div>

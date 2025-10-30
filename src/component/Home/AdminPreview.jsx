@@ -1,7 +1,13 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
 import { fetchData } from "../../common/axiosInstance";
+import useWithdrawStats from '../../features/transaction/useWithdrawStats';
+import Daily from "../../assets/transaction_card/daily.png";
+import Monthly from "../../assets/transaction_card/monthly.png";
+import Yearly from "../../assets/transaction_card/yearly.png";
+import Total from "../../assets/transaction_card/total.png";
 
 // date accepted helpers
 const pad = (n) => String(n).padStart(2, '0');
@@ -71,6 +77,8 @@ const AdminPreview = () => {
     const [gigsAll, setGigsAll] = useState([]);
     const [usersAll, setUsersAll] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const { loading: statsLoading, error: statsError, counts, trend } = useWithdrawStats();
 
     useEffect(() => {
         const load = async () => {
@@ -143,19 +151,21 @@ const AdminPreview = () => {
         };
     }, [projectsAll, gigsAll, usersAll, selectedMonth, currentYear]);
 
-    const StatCard = ({ title, value, icon, bgColor }) => (
+    const StatCard = ({ title, value, icon }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm">
             <div className="flex items-start justify-between mb-4">
                 <h3 className="text-gray-600 text-sm font-medium">{title}</h3>
-                <div className={`${bgColor} w-12 h-12 rounded-xl flex items-center justify-center`}>
-                    {icon}
-                </div>
+                <img src={icon} alt={title} className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-                <div className="text-3xl font-bold text-gray-900">{value}</div>
+                <div className="text-3xl font-bold text-gray-900">
+                    {statsLoading ? "—" : (value ?? "0")}
+                </div>
                 <div className="flex items-center text-sm">
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-green-500 font-medium">37.8%</span>
+                    <span className={`font-medium ${(trend?.pct ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
+                        {statsLoading ? "…" : `${Math.abs(trend?.pct ?? 0)}%`}
+                    </span>
                     <span className="text-gray-500 ml-1">this week</span>
                 </div>
             </div>
@@ -182,18 +192,14 @@ const AdminPreview = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* Left Column - Stats Cards */}
                     <div className="lg:col-span-1 space-y-6">
-                        <StatCard title="Daily Transaction" value="1.6k" change="37.8%" bgColor="bg-pink-100"
-                            icon={<svg className="w-6 h-6 text-pink-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z" /></svg>} />
-                        <StatCard title="Yearly Transaction" value="1.6k" change="37.8%" bgColor="bg-purple-100"
-                            icon={<svg className="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" /><path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" /></svg>} />
+                        <StatCard title="Daily Transaction" value={counts?.daily} icon={Daily} />
+                        <StatCard title="Yearly Transaction" value={counts?.yearly} icon={Yearly} />
                     </div>
 
                     {/* Middle Column - More Stats */}
                     <div className="lg:col-span-1 space-y-6">
-                        <StatCard title="Monthly Transaction" value="1.6k" change="37.8%" bgColor="bg-orange-100"
-                            icon={<svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /></svg>} />
-                        <StatCard title="Total" value="1.6k" change="37.8%" bgColor="bg-blue-100"
-                            icon={<svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.46-.33.7-.66.7-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>} />
+                        <StatCard title="Monthly Transaction" value={counts?.monthly} icon={Monthly} />
+                        <StatCard title="Total" value={counts?.total} icon={Total} />
                     </div>
 
                     {/* Right Column - Chart */}

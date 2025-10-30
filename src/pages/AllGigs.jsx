@@ -57,7 +57,7 @@ const AllGigs = () => {
     }, [page, limit, total]);
 
     return (
-        <div className="bg-white p-8 rounded-xl shadow-sm">
+        <div className="bg-white p-8 rounded-lg shadow-sm">
             <h1 className="text-2xl font-bold mb-6 text-gray-900">All Gigs</h1>
 
             <div className="mb-4 text-sm text-gray-600">

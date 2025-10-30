@@ -42,7 +42,7 @@ const Withdraw = () => {
     };
 
     return (
-        <div className="mx-auto bg-white p-6">
+        <div className="mx-auto rounded-lg bg-white p-6">
             <h1 className="mb-6 text-2xl font-semibold text-black">Withdraw</h1>
 
             {/* Tabs */}
