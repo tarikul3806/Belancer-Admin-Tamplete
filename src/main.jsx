@@ -14,6 +14,7 @@ import AllProjects from './pages/AllProjects.jsx';
 import Transaction from './pages/Transaction.jsx';
 import Withdraw from './pages/Withdraw/Withdraw.jsx';
 import AllUsers from './pages/Users/AllUsers.jsx';
+import GigDetails from './pages/gig_details/GigDetails.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
             <AllGigs />
           </Layout>
         )
+      },
+      {
+        path: "/admin/gigs/:gigId",
+        element: <GigDetails />,
       },
       {
         path: "/admin/projects", element: (

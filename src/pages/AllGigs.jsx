@@ -2,10 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { fetchData } from "../common/axiosInstance";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const PageSize = 10; // start page size 
 
 const AllGigs = () => {
+    const navigate = useNavigate();
     const [gigs, setGigs] = useState([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -95,8 +97,15 @@ const AllGigs = () => {
                                     />
                                 </td>
                                 <td className="py-3 px-4 font-medium text-gray-900 truncate max-w-xs">
-                                    {gig.title}
+                                    <button
+                                        onClick={() => navigate(`/admin/gigs/${gig.id ?? gig.gig_id}`)}
+                                        className="text-[#0087A8] hover:underline focus:underline focus:outline-none"
+                                        aria-label={`Open gig ${gig.title}`}
+                                    >
+                                        {gig.title?.length > 40 ? gig.title.slice(0, 40) + "…" : gig.title}
+                                    </button>
                                 </td>
+
                                 <td className="py-3 px-4">
                                     <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full inline-flex items-center gap-1">
                                         Active <span className="w-2 h-2 bg-green-500 rounded-full" />

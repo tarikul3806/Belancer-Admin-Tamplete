@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchData } from "../../common/axiosInstance";
 
-// --- CONFIG (updated) ---
 const TZ = "Asia/Dhaka";
-// We accept both deposits & withdrawals; extend keys if backend uses synonyms
 const TYPE_KEYS = ["deposit", "withdraw", "withdrawal", "payout"];
 const STATUS_SUCCESS = new Set(["success"]);
 
