@@ -15,6 +15,8 @@ import Transaction from './pages/Transaction.jsx';
 import Withdraw from './pages/Withdraw/Withdraw.jsx';
 import AllUsers from './pages/Users/AllUsers.jsx';
 import GigDetails from './pages/gig_details/GigDetails.jsx';
+import ProjectDetails from './pages/project_details/ProjectDetails.jsx';
+import Dispute from './pages/dispute/Dispute.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -48,6 +50,10 @@ const router = createBrowserRouter([
         )
       },
       {
+        path: "/projects/:projectId",
+        element: <ProjectDetails />,
+      },
+      {
         path: "/admin/transaction", element: (
           <Layout>
             <Transaction />
@@ -58,6 +64,13 @@ const router = createBrowserRouter([
         path: "/admin/withdraw", element: (
           <Layout>
             <Withdraw />
+          </Layout>
+        )
+      },
+      {
+        path: "/admin/dispute", element: (
+          <Layout>
+            <Dispute />
           </Layout>
         )
       },

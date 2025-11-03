@@ -4,7 +4,7 @@ import { Pagination } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const PageSize = 10; // start page size 
+const PageSize = 10; 
 
 const AllGigs = () => {
     const navigate = useNavigate();

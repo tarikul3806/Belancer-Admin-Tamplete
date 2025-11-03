@@ -6,7 +6,7 @@ const { Text } = Typography;
 export default function OverviewSection({ gig }) {
     return (
         <Card title="Overview">
-            <Descriptions bordered column={1} labelStyle={{ width: 220 }}>
+            <Descriptions variant="true" column={1} styles={{ label: { width: 220 } }}>
                 <Descriptions.Item label="Description">{gig.description}</Descriptions.Item>
                 <Descriptions.Item label="Tags">
                     <Space wrap>{(gig.tags || []).map((t, i) => <Tag key={i}>{t}</Tag>)}</Space>

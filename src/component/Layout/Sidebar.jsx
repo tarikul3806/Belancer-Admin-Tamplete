@@ -2,6 +2,7 @@ import { Users, FileText, Settings } from 'lucide-react';
 import { MdDashboard } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { GrTransaction } from "react-icons/gr";
+import { FaRegHandshake } from "react-icons/fa";
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -13,6 +14,7 @@ const Sidebar = () => {
         { icon: FileText, label: 'Gigs', to: '/admin/gigs' },
         { icon: GrTransaction, label: 'Transaction', to: '/admin/transaction' },
         { icon: GrTransaction, label: 'Withdraw', to: '/admin/withdraw' },
+        { icon: FaRegHandshake, label: 'Dispute', to: '/admin/dispute' },
     ];
 
 

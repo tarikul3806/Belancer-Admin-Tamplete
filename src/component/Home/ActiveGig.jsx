@@ -136,8 +136,8 @@ const ActiveGig = () => {
 
                                     {/* Title */}
                                     <td className="py-3 px-4 font-medium text-gray-900 truncate max-w-xs">
-                                        {gig.title?.length > 30
-                                            ? gig.title.slice(0, 30) + "..."
+                                        {gig.title?.length > 25
+                                            ? gig.title.slice(0, 25) + "..."
                                             : gig.title}
                                     </td>
 

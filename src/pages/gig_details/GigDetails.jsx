@@ -62,11 +62,11 @@ export default function GigDetailsPage() {
                 <QASection questions={gig.custom_questions} faqs={gig.faqs} />
             </Space>
 
-            <CompareDrawer
+            {/* <CompareDrawer
                 open={compareOpen}
                 onClose={() => setCompareOpen(false)}
                 packages={gig.packages}
-            />
+            /> */}
         </div>
     );
 }

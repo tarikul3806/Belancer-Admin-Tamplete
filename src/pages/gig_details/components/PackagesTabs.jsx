@@ -14,8 +14,8 @@ export default function PackagesTabs({ pkgEntries, defaultKey, onChange }) {
         key,
         label: key[0].toUpperCase() + key.slice(1),
         children: (
-            <Card bordered>
-                <Descriptions column={1} labelStyle={{ width: 220 }}>
+            <Card>
+                <Descriptions variant="true" column={1} styles={{ label: { width: 220 } }}>
                     {Object.entries(data).map(([k, v]) => (
                         <Descriptions.Item key={k} label={k}>
                             {k.toLowerCase() === "price" ? (

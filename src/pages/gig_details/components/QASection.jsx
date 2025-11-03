@@ -17,14 +17,17 @@ export default function QASection({ questions = [], faqs = [] }) {
                 <Col xs={24} md={12}>
                     <Title level={5}>FAQs</Title>
                     {faqs?.length ? (
-                        <Collapse accordion>
-                            {faqs.map((f, i) => (
-                                <Panel header={f.question} key={i}>
-                                    <p>{f.answer}</p>
-                                </Panel>
-                            ))}
-                        </Collapse>
-                    ) : <Empty description="No FAQs" />}
+                        <Collapse
+                            accordion
+                            items={faqs.map((f, i) => ({
+                                key: i.toString(),
+                                label: f.question,
+                                children: <p>{f.answer}</p>,
+                            }))}
+                        />
+                    ) : (
+                        <Empty description="No FAQs" />
+                    )}
                 </Col>
             </Row>
         </Card>

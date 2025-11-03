@@ -14,7 +14,7 @@ export default function ExtrasTable({ dataSource }) {
                 rowKey={(r, i) => i}
                 dataSource={dataSource || []}
                 columns={extrasCols}
-                pagination={{ pageSize: 5, showSizeChanger: false }}
+                pagination={false}
                 locale={{ emptyText: "No extras" }}
             />
         </Card>
