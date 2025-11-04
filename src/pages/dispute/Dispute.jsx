@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchData } from "../../common/axiosInstance";
+import api, { fetchData } from "../../common/axiosInstance";
 
 const Dispute = () => {
     const [disputes, setDisputes] = useState([]);
@@ -10,6 +10,16 @@ const Dispute = () => {
     const [error, setError] = useState("");
     const [selectedDispute, setSelectedDispute] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("all");
+
+
+    // form state for admin actions
+    const [resolution, setResolution] = useState("");
+    const [status, setStatus] = useState("resolved");
+    const [refundAmount, setRefundAmount] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState("");
+    const [saveSuccess, setSaveSuccess] = useState("");
 
     const loadDisputes = async (pageNumber = 1) => {
         try {
@@ -38,6 +48,20 @@ const Dispute = () => {
 
     const totalPages = Math.max(1, Math.ceil(total / limit));
 
+    // split disputes by status
+    const resolvedDisputes = disputes.filter((d) => d.status === "resolved");
+    const unresolvedDisputes = disputes.filter((d) => d.status !== "resolved");
+
+    // All = only NOT resolved
+    const filteredDisputes =
+        statusFilter === "resolved" ? resolvedDisputes : unresolvedDisputes;
+
+    // counts per tab (current page only)
+    const allCount = unresolvedDisputes.length;
+    const resolvedCount = resolvedDisputes.length;
+    const totalForFilter = statusFilter === "resolved" ? resolvedCount : allCount;
+
+
     const formatDateTime = (value) => {
         if (!value) return "-";
         const d = new Date(value);
@@ -45,30 +69,84 @@ const Dispute = () => {
         return d.toLocaleString();
     };
 
-    const getStatusBadgeClasses = (status) => {
+    const getStatusBadgeClasses = (statusValue) => {
         const base =
             "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium";
-        switch (status) {
+
+        switch (statusValue) {
             case "open":
-                return `${base} bg-blue-50 text-blue-600`;
+                return `${base} bg-yellow-50 text-yellow-700`;
             case "resolved":
-                return `${base} bg-green-50 text-green-600`;
-            case "closed":
-                return `${base} bg-gray-100 text-gray-600`;
+                return `${base} bg-green-50 text-green-700`;
             default:
                 return `${base} bg-gray-50 text-gray-500`;
         }
     };
 
+
     const handleView = (dispute) => {
         setSelectedDispute(dispute);
+        setResolution(dispute.resolution || "");
+        setStatus(dispute.status || "open");
+        setRefundAmount(
+            dispute.refund_amount === null || dispute.refund_amount === undefined
+                ? ""
+                : dispute.refund_amount
+        );
+        setSaveError("");
+        setSaveSuccess("");
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedDispute(null);
+        setResolution("");
+        setStatus("resolved");
+        setRefundAmount("");
+        setSaveError("");
+        setSaveSuccess("");
     };
+
+    const handleResolve = async (e) => {
+        e.preventDefault();
+        if (!selectedDispute) return;
+
+        try {
+            setSaving(true);
+            setSaveError("");
+            setSaveSuccess("");
+
+            const payload = {
+                resolution: resolution.trim(),
+                status: "resolved",
+                refund_amount:
+                    refundAmount === "" || refundAmount === null
+                        ? 0
+                        : Number(refundAmount),
+            };
+            console.log("Updating dispute with payload:", payload);
+
+            await api.patch(`/disputes/${selectedDispute.id}`, payload);
+            await loadDisputes(page);
+
+            setSelectedDispute((prev) =>
+                prev ? { ...prev, ...payload } : prev
+            );
+
+            setSaveSuccess("Dispute updated successfully.");
+        } catch (err) {
+            console.error("Failed to update dispute", err);
+            if (err.response?.data) {
+                console.log("Server validation error:", err.response.data);
+            }
+            setSaveError("Failed to update dispute. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+
 
     return (
         <div className="space-y-6">
@@ -85,8 +163,12 @@ const Dispute = () => {
 
                 <div className="flex items-center gap-4">
                     <div className="text-right">
-                        <p className="text-xs text-gray-500">Total Disputes</p>
-                        <p className="text-lg font-semibold text-gray-900">{total}</p>
+                        <p className="text-xs text-gray-500">
+                            {statusFilter === "resolved" ? "Resolved Disputes" : "All Disputes"}
+                        </p>
+                        <p className="text-lg font-semibold text-gray-900">
+                            {statusFilter === "resolved" ? resolvedCount : allCount}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -96,11 +178,40 @@ const Dispute = () => {
                 {/* Top toolbar */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span className="font-medium text-gray-700">All Disputes</span>
+                        <span className="font-medium text-gray-700">
+                            {statusFilter === "resolved" ? "Resolved Disputes" : "All Disputes"}
+                        </span>
                         <span className="text-gray-300">•</span>
                         <span>
                             Page {page} of {totalPages}
                         </span>
+                        {statusFilter === "resolved" && (
+                            <span className="ml-2 text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                                Filter: Resolved
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Filter pills */}
+                    <div className="flex items-center gap-2 text-xs">
+                        <button
+                            onClick={() => setStatusFilter("all")}
+                            className={`px-3 py-1.5 rounded-full border font-medium ${statusFilter === "all"
+                                ? "bg-pink-50 text-pink-600 border-pink-200"
+                                : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+                                }`}
+                        >
+                            All
+                        </button>
+                        <button
+                            onClick={() => setStatusFilter("resolved")}
+                            className={`px-3 py-1.5 rounded-full border font-medium ${statusFilter === "resolved"
+                                ? "bg-green-50 text-green-700 border-green-200"
+                                : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+                                }`}
+                        >
+                            Resolved
+                        </button>
                     </div>
                 </div>
 
@@ -149,7 +260,7 @@ const Dispute = () => {
                                 </tr>
                             )}
 
-                            {!loading && !error && disputes.length === 0 && (
+                            {!loading && !error && filteredDisputes.length === 0 && (
                                 <tr>
                                     <td
                                         colSpan={5}
@@ -160,40 +271,38 @@ const Dispute = () => {
                                 </tr>
                             )}
 
-                            {!loading &&
-                                !error &&
-                                disputes.map((d) => (
-                                    <tr key={d.id} className="hover:bg-gray-50/70">
-                                        <td className="px-4 py-3 whitespace-nowrap text-gray-900">
-                                            {d.id}
-                                        </td>
+                            {!loading && !error && filteredDisputes.map((d) => (
+                                <tr key={d.id} className="hover:bg-gray-50/70">
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-900">
+                                        {d.id}
+                                    </td>
 
-                                        <td className="px-4 py-3 whitespace-nowrap text-gray-700 text-xs">
-                                            <div className="flex flex-col gap-0.5">
-                                                <span>Order: {d.order_id ?? "-"}</span>
-                                                <span>Project: {d.project_id ?? "-"}</span>
-                                                <span>Gig: {d.gig_id ?? "-"}</span>
-                                            </div>
-                                        </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-700 text-xs">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span>Order: {d.order_id ?? "-"}</span>
+                                            <span>Project: {d.project_id ?? "-"}</span>
+                                            <span>Gig: {d.gig_id ?? "-"}</span>
+                                        </div>
+                                    </td>
 
-                                        <td className="px-4 py-3 whitespace-nowrap text-gray-700">
-                                            {d.against_id}
-                                        </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-700">
+                                        {d.against_id}
+                                    </td>
 
-                                        <td className="px-4 py-3 whitespace-nowrap text-gray-700">
-                                            {d.reason || "-"}
-                                        </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-700">
+                                        {d.reason || "-"}
+                                    </td>
 
-                                        <td className="p-4">
-                                            <button
-                                                onClick={() => handleView(d)}
-                                                className="text-sm font-medium text-pink-600 hover:text-pink-700"
-                                            >
-                                                View
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                    <td className="p-4">
+                                        <button
+                                            onClick={() => handleView(d)}
+                                            className="text-sm font-medium text-pink-600 hover:text-pink-700"
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
@@ -203,13 +312,14 @@ const Dispute = () => {
                     <div className="text-gray-500">
                         Showing{" "}
                         <span className="font-medium">
-                            {disputes.length === 0
+                            {filteredDisputes.length === 0
                                 ? 0
                                 : (page - 1) * limit + 1}
                             -
-                            {(page - 1) * limit + disputes.length}
+                            {(page - 1) * limit + filteredDisputes.length}
+
                         </span>{" "}
-                        of <span className="font-medium">{total}</span> disputes
+                        of <span className="font-medium">{totalForFilter}</span> disputes
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -243,7 +353,7 @@ const Dispute = () => {
             {/* Detail Modal */}
             {isModalOpen && selectedDispute && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl">
+                    <div className="w-full max-w-3xl max-h-[calc(100vh-4rem)] bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b">
                             <div>
@@ -265,7 +375,7 @@ const Dispute = () => {
                         </div>
 
                         {/* Body */}
-                        <div className="px-6 py-4 space-y-4 text-sm">
+                        <div className="px-6 py-4 space-y-4 text-sm flex-1 overflow-y-auto">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-xs font-medium text-gray-400 uppercase">
@@ -287,7 +397,9 @@ const Dispute = () => {
                                     <p className="text-xs font-medium text-gray-400 uppercase">
                                         Status
                                     </p>
-                                    <span className={getStatusBadgeClasses(selectedDispute.status)}>
+                                    <span
+                                        className={getStatusBadgeClasses(selectedDispute.status)}
+                                    >
                                         {selectedDispute.status || "unknown"}
                                     </span>
                                 </div>
@@ -353,16 +465,90 @@ const Dispute = () => {
                                     {selectedDispute.details || "-"}
                                 </p>
                             </div>
+
+                            {/* Admin Resolution Form */}
+                            <div className="pt-4 mt-2 border-t border-gray-100">
+                                <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                                    Admin Resolution
+                                </p>
+                                <form
+                                    id="disputeResolveForm"
+                                    onSubmit={handleResolve}
+                                    className="space-y-4"
+                                >
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
+                                                Status
+                                            </label>
+                                            <select
+                                                value={status}
+                                                onChange={(e) => setStatus(e.target.value)}
+                                                className="text-sm block w-full rounded-lg border border-gray-300 px-3 py-2 text-black focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                                            >
+                                                <option value="open">open</option>
+                                                <option value="resolved">resolved</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
+                                                Refund Amount
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="01"
+                                                value={refundAmount}
+                                                onChange={(e) => setRefundAmount(e.target.value)}
+                                                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-black text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
+                                            Resolution Note
+                                        </label>
+                                        <textarea
+                                            rows={3}
+                                            value={resolution}
+                                            onChange={(e) => setResolution(e.target.value)}
+                                            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-black text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                                            placeholder="Write how this dispute was resolved..."
+                                        />
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         {/* Footer */}
-                        <div className="flex justify-end px-6 py-4 border-t">
-                            <button
-                                onClick={closeModal}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                            >
-                                Close
-                            </button>
+                        <div className="flex items-center justify-between px-6 py-4 border-t">
+                            <div className="text-xs">
+                                {saveError && (
+                                    <p className="text-red-500">{saveError}</p>
+                                )}
+                                {!saveError && saveSuccess && (
+                                    <p className="text-green-600">{saveSuccess}</p>
+                                )}
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="submit"
+                                    form="disputeResolveForm"
+                                    disabled={saving}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {saving ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
