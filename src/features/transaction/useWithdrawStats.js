@@ -88,6 +88,33 @@ export default function useWithdrawStats() {
         return { daily, monthly, yearly, total };
     }, [items]);
 
+    const amounts = useMemo(() => {
+        const now = new Date();
+        const yNow = yearTZ(now);
+        const mNow = monthTZ(now);
+        const dNow = ymdTZ(now);
+
+        let daily = 0, monthly = 0, yearly = 0, total = 0;
+
+        for (const t of items) {
+            const d = asDate(t?.created_at || t?.createdAt || t?.date_created);
+            if (!d) continue;
+
+            const y = yearTZ(d), m = monthTZ(d), ymd = ymdTZ(d);
+            const amt = Number(t?.amount || 0);
+
+            total += amt;
+            if (y === yNow) {
+                yearly += amt;
+                if (m === mNow) {
+                    monthly += amt;
+                    if (ymd === dNow) daily += amt;
+                }
+            }
+        }
+        return { daily, monthly, yearly, total };
+    }, [items]);
+
     // same week-over-week trend logic
     const trend = useMemo(() => {
         const now = new Date();
@@ -108,5 +135,6 @@ export default function useWithdrawStats() {
         return { cur, prev, pct };
     }, [items]);
 
-    return { loading, error, counts, trend };
+    return { loading, error, counts, amounts, trend };
 }
+

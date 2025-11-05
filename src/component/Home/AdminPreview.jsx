@@ -27,6 +27,12 @@ const daysInRange = (from, to) => {
     }
     return out;
 };
+const formatAmount = (n) =>
+    Number(n || 0).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    });
+
 const pickDate = (obj, fields = ["created_at", "date_created", "createdAt"]) => {
     for (const f of fields) {
         if (obj?.[f]) {
@@ -78,7 +84,7 @@ const AdminPreview = () => {
     const [usersAll, setUsersAll] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const { loading: statsLoading, error: statsError, counts, trend } = useWithdrawStats();
+    const { loading: statsLoading, error: statsError, counts, amounts } = useWithdrawStats();
 
     useEffect(() => {
         const load = async () => {
@@ -151,22 +157,23 @@ const AdminPreview = () => {
         };
     }, [projectsAll, gigsAll, usersAll, selectedMonth, currentYear]);
 
-    const StatCard = ({ title, value, icon }) => (
+    const StatCard = ({ title, count, amount, icon }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm">
             <div className="flex items-start justify-between mb-4">
                 <h3 className="text-gray-600 text-sm font-medium">{title}</h3>
                 <img src={icon} alt={title} className="w-10 h-10" />
             </div>
             <div className="space-y-2">
+                {/* number of successful transactions */}
                 <div className="text-3xl font-bold text-gray-900">
-                    {statsLoading ? "—" : (value ?? "0")}
+                    {statsLoading ? "—" : (count ?? 0)}
                 </div>
-                <div className="flex items-center text-sm">
-                    <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className={`font-medium ${(trend?.pct ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
-                        {statsLoading ? "…" : `${Math.abs(trend?.pct ?? 0)}%`}
-                    </span>
-                    <span className="text-gray-500 ml-1">this week</span>
+
+                {/* total amount for that period */}
+                <div className="text-sm text-gray-500">
+                    {statsLoading
+                        ? "Calculating…"
+                        : `Total amount: ${formatAmount(amount ?? 0)}`}
                 </div>
             </div>
         </div>
@@ -192,14 +199,34 @@ const AdminPreview = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* Left Column - Stats Cards */}
                     <div className="lg:col-span-1 space-y-6">
-                        <StatCard title="Daily Transaction" value={counts?.daily} icon={Daily} />
-                        <StatCard title="Yearly Transaction" value={counts?.yearly} icon={Yearly} />
+                        <StatCard
+                            title="Daily Transaction"
+                            count={counts?.daily}
+                            amount={amounts?.daily}
+                            icon={Daily}
+                        />
+                        <StatCard
+                            title="Yearly Transaction"
+                            count={counts?.yearly}
+                            amount={amounts?.yearly}
+                            icon={Yearly}
+                        />
                     </div>
 
                     {/* Middle Column - More Stats */}
                     <div className="lg:col-span-1 space-y-6">
-                        <StatCard title="Monthly Transaction" value={counts?.monthly} icon={Monthly} />
-                        <StatCard title="Total" value={counts?.total} icon={Total} />
+                        <StatCard
+                            title="Monthly Transaction"
+                            count={counts?.monthly}
+                            amount={amounts?.monthly}
+                            icon={Monthly}
+                        />
+                        <StatCard
+                            title="Total"
+                            count={counts?.total}
+                            amount={amounts?.total}
+                            icon={Total}
+                        />
                     </div>
 
                     {/* Right Column - Chart */}
