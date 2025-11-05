@@ -69,7 +69,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 const AdminPreview = () => {
     const now = new Date();
     const currentYear = now.getFullYear();
-    const [selectedMonth, setSelectedMonth] = useState(now.getMonth()); // 0..11
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // raw data (fetched once)

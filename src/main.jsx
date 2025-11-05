@@ -17,6 +17,7 @@ import AllUsers from './pages/Users/AllUsers.jsx';
 import GigDetails from './pages/gig_details/GigDetails.jsx';
 import ProjectDetails from './pages/project_details/ProjectDetails.jsx';
 import Dispute from './pages/dispute/Dispute.jsx';
+import FreelancerProfile from './pages/Users/FreelancerProfile.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
             <AllUsers />
           </Layout>
         )
+      },
+      {
+        path: "/admin/freelancers/:userId",
+        element: <FreelancerProfile />,
       },
       {
         path: "/admin/gigs", element: (
