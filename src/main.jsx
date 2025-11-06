@@ -18,6 +18,7 @@ import GigDetails from './pages/gig_details/GigDetails.jsx';
 import ProjectDetails from './pages/project_details/ProjectDetails.jsx';
 import Dispute from './pages/dispute/Dispute.jsx';
 import FreelancerProfile from './pages/Users/FreelancerProfile.jsx';
+import Applications from './pages/applications/Applications.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -76,6 +77,13 @@ const router = createBrowserRouter([
         path: "/admin/dispute", element: (
           <Layout>
             <Dispute />
+          </Layout>
+        )
+      },
+      {
+        path: "/admin/applications", element: (
+          <Layout>
+            <Applications />
           </Layout>
         )
       },
