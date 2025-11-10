@@ -1,4 +1,11 @@
-import React from "react";
+// src/pages/dispute/DisputeDetailsModal.jsx
+import React, { useEffect, useState } from "react";
+import { fetchData, postData } from "../../common/axiosInstance";
+import DisputeDetailsHeader from "./DisputeDetailsHeader";
+import DisputeSummary from "./DisputeSummary";
+import DisputeMessagesPanel from "./DisputeMessagesPanel";
+import DisputeAdminResolutionForm from "./DisputeAdminResolutionForm";
+import DisputeDetailsFooter from "./DisputeDetailsFooter";
 
 const DisputeDetailsModal = ({
     isOpen,
@@ -17,214 +24,205 @@ const DisputeDetailsModal = ({
     getStatusBadgeClasses,
     formatDateTime,
 }) => {
+    const [raisedByUser, setRaisedByUser] = useState(null);
+    const [againstUser, setAgainstUser] = useState(null);
+
+    const [messages, setMessages] = useState([]);
+    const [messagesLoading, setMessagesLoading] = useState(false);
+    const [messagesError, setMessagesError] = useState("");
+    const [showMessages, setShowMessages] = useState(true);
+    // Admin reply
+    const [newMessage, setNewMessage] = useState("");
+    const [postingMessage, setPostingMessage] = useState(false);
+    const [postMessageError, setPostMessageError] = useState("");
+
+    const getDisplayName = (user) => {
+        if (!user) return "";
+
+        const full = [user.first_name, user.last_name].filter(Boolean).join(" ");
+        if (full) return full;
+
+        if (user.display_name) return user.display_name;
+
+        return `User #${user.user_id || user.id}`;
+    };
+
+    const getMessageSenderName = (senderId) => {
+        if (!senderId) return "-";
+
+        // Match with "raised by" user
+        if (
+            raisedByUser &&
+            (
+                senderId === dispute.raised_by ||
+                senderId === raisedByUser.user_id ||
+                senderId === raisedByUser.id
+            )
+        ) {
+            return getDisplayName(raisedByUser);
+        }
+
+        // Match with "against" user
+        if (
+            againstUser &&
+            (
+                senderId === dispute.against_id ||
+                senderId === againstUser.user_id ||
+                senderId === againstUser.id
+            )
+        ) {
+            return getDisplayName(againstUser);
+        }
+
+        // Fallback – likely admin or unknown
+        return `Sender #${senderId}`;
+    };
+
+    useEffect(() => {
+        // when modal is closed or dispute is missing, clear everything
+        if (!isOpen || !dispute) {
+            setRaisedByUser(null);
+            setAgainstUser(null);
+            setMessages([]);
+            setMessagesError("");
+            setMessagesLoading(false);
+            setNewMessage("");
+            setPostingMessage(false);
+            setPostMessageError("");
+            return;
+        }
+
+        const loadExtraData = async () => {
+            try {
+                setMessagesLoading(true);
+                setMessagesError("");
+
+                const [raised, against, messagesRes] = await Promise.all([
+                    dispute.raised_by
+                        ? fetchData("/auth/seller-profile", {
+                            user_id: dispute.raised_by,
+                        })
+                        : Promise.resolve(null),
+                    dispute.against_id
+                        ? fetchData("/auth/seller-profile", {
+                            user_id: dispute.against_id,
+                        })
+                        : Promise.resolve(null),
+                    fetchData(`/disputes/${dispute.id}/messages`),
+                ]);
+                console.log("Fetched dispute extra data:", {
+                    raised,
+                    against,
+                    messagesRes,
+                });
+
+                setRaisedByUser(raised);
+                setAgainstUser(against);
+
+                const msgs = Array.isArray(messagesRes?.messages)
+                    ? messagesRes.messages
+                    : [];
+                setMessages(msgs);
+            } catch (err) {
+                console.error("Failed to fetch extra dispute data", err);
+                setMessages([]);
+                setMessagesError("Failed to load messages.");
+            } finally {
+                setMessagesLoading(false);
+            }
+        };
+
+        loadExtraData();
+    }, [isOpen, dispute]);
+
+    const handleSendAdminMessage = async () => {
+        if (!dispute) return;
+
+        const trimmed = newMessage.trim();
+        if (!trimmed) return;
+
+        try {
+            setPostingMessage(true);
+            setPostMessageError("");
+
+            const created = await postData(`/disputes/${dispute.id}`, {
+                message: trimmed,
+            });
+
+            setMessages((prev) => [...prev, created]);
+            setNewMessage("");
+        } catch (err) {
+            console.error("Failed to send dispute message", err);
+            setPostMessageError("Failed to send message. Please try again.");
+        } finally {
+            setPostingMessage(false);
+        }
+    };
+
     if (!isOpen || !dispute) return null;
 
     const isResolved = dispute.status === "resolved";
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="w-full max-w-3xl max-h-[calc(100vh-4rem)] bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b">
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            Dispute #{dispute.id}
-                        </h2>
-                        <p className="text-xs text-gray-500">
-                            Order {dispute.order_id || "-"} • Project{" "}
-                            {dispute.project_id || "-"} • Gig{" "}
-                            {dispute.gig_id || "-"}
-                        </p>
+            <div className="w-full max-w-5xl max-h-[calc(100vh-4rem)] bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <DisputeDetailsHeader
+                    dispute={dispute}
+                    showMessages={showMessages}
+                    onToggleMessages={() =>
+                        setShowMessages((prev) => !prev)
+                    }
+                    onClose={onClose}
+                />
+
+                <div className="px-6 py-4 text-sm flex-1 overflow-y-auto">
+                    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+                        {/* LEFT: Dispute details */}
+                        <DisputeSummary
+                            dispute={dispute}
+                            raisedByUser={raisedByUser}
+                            againstUser={againstUser}
+                            getDisplayName={getDisplayName}
+                            getStatusBadgeClasses={getStatusBadgeClasses}
+                            formatDateTime={formatDateTime}
+                        />
+
+                        {/* RIGHT: Messages */}
+                        <DisputeMessagesPanel
+                            showMessages={showMessages}
+                            messages={messages}
+                            messagesLoading={messagesLoading}
+                            messagesError={messagesError}
+                            formatDateTime={formatDateTime}
+                            newMessage={newMessage}
+                            setNewMessage={setNewMessage}
+                            onSendMessage={handleSendAdminMessage}
+                            postingMessage={postingMessage}
+                            postMessageError={postMessageError}
+                            getMessageSenderName={getMessageSenderName}
+                        />
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-                    >
-                        &times;
-                    </button>
+
+                    {/* Admin Resolution Form / resolved note */}
+                    <DisputeAdminResolutionForm
+                        isResolved={isResolved}
+                        onSubmit={onSubmit}
+                        status={status}
+                        setStatus={setStatus}
+                        refundAmount={refundAmount}
+                        setRefundAmount={setRefundAmount}
+                        resolution={resolution}
+                        setResolution={setResolution}
+                    />
                 </div>
 
-                {/* Body */}
-                <div className="px-6 py-4 space-y-4 text-sm flex-1 overflow-y-auto">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Raised By
-                            </p>
-                            <p className="text-gray-800">
-                                {dispute.raised_by ?? "-"}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Against ID
-                            </p>
-                            <p className="text-gray-800">
-                                {dispute.against_id ?? "-"}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Status
-                            </p>
-                            <span
-                                className={getStatusBadgeClasses(dispute.status)}
-                            >
-                                {dispute.status || "unknown"}
-                            </span>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Refund Amount
-                            </p>
-                            <p className="text-gray-800">
-                                {dispute.refund_amount ?? "-"}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Created At
-                            </p>
-                            <p className="text-gray-800">
-                                {formatDateTime(dispute.created_at)}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Updated At
-                            </p>
-                            <p className="text-gray-800">
-                                {formatDateTime(dispute.updated_at)}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Resolved By
-                            </p>
-                            <p className="text-gray-800">
-                                {dispute.resolved_by ?? "-"}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-400 uppercase">
-                                Resolution
-                            </p>
-                            <p className="text-gray-800">
-                                {dispute.resolution || "-"}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className="text-xs font-medium text-gray-400 uppercase mb-1">
-                            Reason
-                        </p>
-                        <p className="text-gray-800">
-                            {dispute.reason || "-"}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p className="text-xs font-medium text-gray-400 uppercase mb-1">
-                            Details
-                        </p>
-                        <p className="text-gray-700 whitespace-pre-line">
-                            {dispute.details || "-"}
-                        </p>
-                    </div>
-
-                    {/* Admin Resolution Form */}
-                    {!isResolved && (
-                        <div className="pt-4 mt-2 border-t border-gray-100">
-                            <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                                Admin Resolution
-                            </p>
-                            <form
-                                id="disputeResolveForm"
-                                onSubmit={onSubmit}
-                                className="space-y-4"
-                            >
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                                            Status
-                                        </label>
-                                        <select
-                                            value={status}
-                                            onChange={(e) => setStatus(e.target.value)}
-                                            className="text-sm block w-full rounded-lg border border-gray-300 px-3 py-2 text-black focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                                        >
-                                            <option value="open">open</option>
-                                            <option value="resolved">resolved</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                                            Refund Amount
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="01"
-                                            value={refundAmount}
-                                            onChange={(e) => setRefundAmount(e.target.value)}
-                                            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-black text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                                        Resolution Note
-                                    </label>
-                                    <textarea
-                                        rows={3}
-                                        value={resolution}
-                                        onChange={(e) => setResolution(e.target.value)}
-                                        className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-black text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                                        placeholder="Write how this dispute was resolved..."
-                                    />
-                                </div>
-                            </form>
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-4 border-t">
-                    <div className="text-xs">
-                        {!isResolved && saveError && (
-                            <p className="text-red-500">{saveError}</p>
-                        )}
-                        {!isResolved && !saveError && saveSuccess && (
-                            <p className="text-green-600">{saveSuccess}</p>
-                        )}
-                    </div>
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                        >
-                            Close
-                        </button>
-
-                        {!isResolved && (
-                            <button
-                                type="submit"
-                                form="disputeResolveForm"
-                                disabled={saving}
-                                className="px-4 py-2 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {saving ? "Saving..." : "Save Changes"}
-                            </button>
-                        )}
-                    </div>
-                </div>
+                <DisputeDetailsFooter
+                    isResolved={isResolved}
+                    saving={saving}
+                    saveError={saveError}
+                    saveSuccess={saveSuccess}
+                    onClose={onClose}
+                />
             </div>
         </div>
     );

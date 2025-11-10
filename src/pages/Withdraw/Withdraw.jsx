@@ -6,7 +6,7 @@ import WithdrawDetailsModal from "./WithdrawDetailsModal";
 
 const Withdraw = () => {
     const [activeTab, setActiveTab] = useState("requests");
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(100);
     const [page, setPage] = useState(1);
     const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0);

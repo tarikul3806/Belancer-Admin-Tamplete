@@ -82,7 +82,7 @@ const ApplicationsTable = ({
                                         <td className="px-6 py-3 text-right">
                                             <button
                                                 onClick={() => onSelectApplication(app)}
-                                                className="text-sm font-medium text-[#FF006E] hover:underline"
+                                                className="text-sm font-medium text-[#FF006E] hover:text-pink-700 hover:underline"
                                             >
                                                 View
                                             </button>

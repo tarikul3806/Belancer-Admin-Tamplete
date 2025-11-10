@@ -138,7 +138,7 @@ const DisputeTable = ({
                                     <td className="p-4">
                                         <button
                                             onClick={() => onView(d)}
-                                            className="text-sm font-medium text-pink-600 hover:text-pink-700"
+                                            className="text-sm font-medium text-pink-600 hover:text-pink-700 hover:underline"
                                         >
                                             View
                                         </button>

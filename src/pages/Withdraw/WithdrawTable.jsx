@@ -48,7 +48,9 @@ const WithdrawTable = ({
                             <th className="p-4 text-left font-medium text-gray-600">
                                 Status
                             </th>
-                            <th className="p-4" />
+                            <th className="p-4 text-left font-medium text-gray-600">
+                                Action
+                            </th>
                         </tr>
                     </thead>
 
@@ -90,7 +92,7 @@ const WithdrawTable = ({
                                         <td className="p-4">
                                             <button
                                                 onClick={() => openDetails(tx)}
-                                                className="text-sm font-medium text-pink-600 hover:text-pink-700"
+                                                className="text-sm font-medium text-pink-600 hover:text-pink-700 hover:underline"
                                             >
                                                 Details
                                             </button>

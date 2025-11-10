@@ -15,6 +15,10 @@ const ApplicationDetailsModal = ({
     if (!open || !application) return null;
 
     const selected = application;
+    const currentStatus = (selected.status || "").toLowerCase();
+    const showAdminUpdate =
+        currentStatus !== "success" && currentStatus !== "cancelled";
+
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -152,40 +156,42 @@ const ApplicationDetailsModal = ({
                     </section>
 
                     {/* admin status update */}
-                    <section className="pt-3 border-t border-gray-100">
-                        <h3 className="text-black font-semibold mb-2">Admin update</h3>
-                        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-                            <div className="flex-1">
-                                <label className="block text-xs font-medium text-gray-500 mb-1">
-                                    Status
-                                </label>
-                                <select
-                                    value={statusDraft}
-                                    onChange={(e) => onStatusDraftChange(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-black bg-white"
-                                >
-                                    <option value="pending">pending</option>
-                                    <option value="success">success</option>
-                                    <option value="cancelled">cancelled</option>
-                                </select>
-                            </div>
+                    {showAdminUpdate && (
+                        <section className="pt-3 border-t border-gray-100">
+                            <h3 className="text-black font-semibold mb-2">Admin update</h3>
+                            <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+                                <div className="flex-1">
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                                        Status
+                                    </label>
+                                    <select
+                                        value={statusDraft}
+                                        onChange={(e) => onStatusDraftChange(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-black bg-white"
+                                    >
+                                        <option value="pending">pending</option>
+                                        <option value="success">success</option>
+                                        <option value="cancelled">cancelled</option>
+                                    </select>
+                                </div>
 
-                            <button
-                                type="button"
-                                onClick={onStatusSave}
-                                disabled={statusSaving}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium text-white ${statusSaving
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-[#FF006E] hover:bg-[#e00062]"
-                                    }`}
-                            >
-                                {statusSaving ? "Saving..." : "Save changes"}
-                            </button>
-                        </div>
-                        {statusSaveError && (
-                            <p className="mt-2 text-xs text-red-500">{statusSaveError}</p>
-                        )}
-                    </section>
+                                <button
+                                    type="button"
+                                    onClick={onStatusSave}
+                                    disabled={statusSaving}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium text-white ${statusSaving
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-[#FF006E] hover:bg-[#e00062]"
+                                        }`}
+                                >
+                                    {statusSaving ? "Saving..." : "Save changes"}
+                                </button>
+                            </div>
+                            {statusSaveError && (
+                                <p className="mt-2 text-xs text-red-500">{statusSaveError}</p>
+                            )}
+                        </section>
+                    )}
                 </div>
             </div>
         </div>
