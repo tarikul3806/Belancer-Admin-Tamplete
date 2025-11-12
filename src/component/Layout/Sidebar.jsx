@@ -4,6 +4,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { GrTransaction } from "react-icons/gr";
 import { FaRegHandshake } from "react-icons/fa";
 import { MdOutlineInterpreterMode } from "react-icons/md";
+import { MdOutlineVerifiedUser } from "react-icons/md";
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -11,6 +12,7 @@ const Sidebar = () => {
     const navItems = [
         { icon: MdDashboard, label: 'Dashboard', to: '/' },
         { icon: Users, label: 'Users', to: '/admin/users' },
+        { icon: MdOutlineVerifiedUser, label: 'Verification', to: '/admin/verification' },
         { icon: FileText, label: 'Projects', to: '/admin/projects' },
         { icon: FileText, label: 'Gigs', to: '/admin/gigs' },
         { icon: GrTransaction, label: 'Transaction', to: '/admin/transaction' },
@@ -34,7 +36,7 @@ const Sidebar = () => {
                         to={item.to}
                         end={item.to === '/'}
                         className={({ isActive }) =>
-                            `w-full flex items-center gap-3 px-4 py-3 mb-1 rounded transition-colors
+                            `w-full flex items-center gap-3 px-4 py-2 mb-1 rounded transition-colors
                             ${isActive ? 'bg-[#0088FF] text-white' : 'hover:bg-[#0088FF] hover:text-white'}`
                         }
                     >

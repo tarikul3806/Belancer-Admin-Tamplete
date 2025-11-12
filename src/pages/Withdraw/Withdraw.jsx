@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ArrowUpDown, Filter } from "lucide-react";
+import { ArrowUpDown, Filter, Search } from "lucide-react";
 import { fetchData } from "../../common/axiosInstance";
 import WithdrawTable from "./WithdrawTable";
 import WithdrawDetailsModal from "./WithdrawDetailsModal";
@@ -14,6 +14,7 @@ const Withdraw = () => {
     const [error, setError] = useState("");
     const [open, setOpen] = useState(false);
     const [selectedTx, setSelectedTx] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
     // fetch withdrawal requests
     useEffect(() => {
@@ -74,15 +75,16 @@ const Withdraw = () => {
                     )}
                 </button>
 
-                <div className="ml-auto flex gap-2">
-                    <button className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50">
-                        <ArrowUpDown size={16} />
-                        Sort
-                    </button>
-                    <button className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50">
-                        <Filter size={16} />
-                        Filter
-                    </button>
+                {/* Search input */}
+                <div className="relative ml-auto flex gap-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                        type="text"
+                        placeholder="Search by receiver"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 pr-12 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                    />
                 </div>
             </div>
 
@@ -98,6 +100,7 @@ const Withdraw = () => {
                 setItemsPerPage={setItemsPerPage}
                 openDetails={openDetails}
                 total={total}
+                searchTerm={searchTerm}
             />
 
             {/* Modal */}

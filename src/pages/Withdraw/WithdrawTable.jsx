@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { Pagination } from "antd";
 
@@ -22,12 +23,29 @@ const WithdrawTable = ({
     setItemsPerPage,
     openDetails,
     total,
+    searchTerm,
 }) => {
+    const q = (searchTerm || "").trim().toLowerCase();
+
     const filtered = rows.filter((tx) => {
-        if (activeTab === "requests") return tx.status === "pending";
-        if (activeTab === "completed")
-            return ["success", "cancelled"].includes(tx.status);
-        return true;
+        // tab filter
+        if (activeTab === "requests" && tx.status !== "pending") return false;
+        if (
+            activeTab === "completed" &&
+            !["success", "cancelled"].includes(tx.status)
+        ) {
+            return false;
+        }
+
+        // search filter (receiver name)
+        if (!q) return true;
+
+        const receiverName =
+            tx.receiver_account_holder_name ||
+            tx.receiver_name ||
+            (tx.wallet_holder ? `User #${tx.wallet_holder}` : "");
+
+        return receiverName.toLowerCase().includes(q);
     });
 
     return (
