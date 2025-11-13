@@ -70,5 +70,16 @@ const deleteData = async (endpoint) => {
     }
 };
 
-export { fetchData, fetchById, postData, putData, deleteData };
+// PATCH
+const patchData = async (endpoint, data) => {
+    try {
+        const response = await instance.patch(endpoint, data);
+        return response.data;
+    } catch (error) {
+        console.error(`PATCH ${endpoint} failed:`, error);
+        throw error;
+    }
+};
+
+export { fetchData, fetchById, postData, putData, deleteData, patchData };
 export default instance;
