@@ -61,7 +61,7 @@ const Verification = () => {
                     </h1>
                 </div>
 
-                {/* Filters (UI only for now; you can wire status_q etc. later) */}
+                {/* Filters */}
                 <div className="flex gap-3 mb-6">
                     <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 text-sm text-gray-700">
                         All Verifications

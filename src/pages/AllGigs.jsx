@@ -3,8 +3,9 @@ import { fetchData } from "../common/axiosInstance";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 
-const PageSize = 10; 
+const PageSize = 10;
 
 const AllGigs = () => {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ const AllGigs = () => {
     const [loading, setLoading] = useState(false);
 
     const [searchParams, setSearchParams] = useSearchParams();
+    const [search, setSearch] = useState("");
+
 
     // Read initial page,limit
     const pageFromUrl = Number(searchParams.get("page")) || 1;
@@ -50,6 +53,11 @@ const AllGigs = () => {
         load();
     }, [page, limit]);
 
+    const filteredGigs = useMemo(() => {
+        if (!search.trim()) return gigs;
+        const s = search.toLowerCase();
+        return gigs.filter(g => g.title?.toLowerCase().includes(s));
+    }, [gigs, search]);
 
     const [startRow, endRow] = useMemo(() => {
         if (!total) return [0, 0];
@@ -62,8 +70,22 @@ const AllGigs = () => {
         <div className="bg-white p-8 rounded-lg shadow-sm">
             <h1 className="text-2xl font-bold mb-6 text-gray-900">All Gigs</h1>
 
-            <div className="mb-4 text-sm text-gray-600">
-                {loading ? "Loading…" : `Showing ${startRow}–${endRow} of ${total}`}
+            <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-600">
+                    {loading ? "Loading…" : `Showing ${startRow}–${endRow} of ${total}`}
+                </div>
+
+                {/* Search input */}
+                <div className="relative ml-auto flex gap-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                        type="text"
+                        placeholder="Search by project title"
+                        className="pl-10 pr-12 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -79,7 +101,7 @@ const AllGigs = () => {
                     </thead>
 
                     <tbody>
-                        {gigs.map((gig, index) => (
+                        {filteredGigs.map((gig, index) => (
                             <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                 <td className="py-3 px-4 text-gray-800">{gig.seller_id ?? "N/A"}</td>
                                 <td className="py-3 px-4">

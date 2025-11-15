@@ -85,7 +85,7 @@ const VerificationDetails = () => {
         }
     };
 
-    const allowedStatuses = ["unverified", "verified", "rejected"];
+    const allowedStatuses = ["unverified", "verified", "pending"];
     const [pendingStatus, setPendingStatus] = useState("");
 
     const handleStatusUpdate = async () => {

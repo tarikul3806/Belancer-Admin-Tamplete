@@ -5,6 +5,7 @@ import { GrTransaction } from "react-icons/gr";
 import { FaRegHandshake } from "react-icons/fa";
 import { MdOutlineInterpreterMode } from "react-icons/md";
 import { MdOutlineVerifiedUser } from "react-icons/md";
+import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -15,6 +16,7 @@ const Sidebar = () => {
         { icon: MdOutlineVerifiedUser, label: 'Verification', to: '/admin/verification' },
         { icon: FileText, label: 'Projects', to: '/admin/projects' },
         { icon: FileText, label: 'Gigs', to: '/admin/gigs' },
+        { icon: FaRegMoneyBillAlt, label: 'Fees', to: '/admin/fees' },
         { icon: GrTransaction, label: 'Transaction', to: '/admin/transaction' },
         { icon: GrTransaction, label: 'Withdraw', to: '/admin/withdraw' },
         { icon: FaRegHandshake, label: 'Dispute', to: '/admin/dispute' },
@@ -45,9 +47,9 @@ const Sidebar = () => {
                     </NavLink>
                 ))}
 
-                <div className="border-t border-gray-700 my-4"></div>
+                <div className="border-t border-gray-700 my-2"></div>
 
-                <button className="w-full flex items-center gap-3 px-4 py-3">
+                <button className="w-full flex items-center gap-3 px-4 py-2">
                     <Settings size={20} />
                     <span>Settings</span>
                 </button>

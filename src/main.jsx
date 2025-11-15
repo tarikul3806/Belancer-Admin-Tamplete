@@ -21,6 +21,7 @@ import Applications from './pages/applications/Applications.jsx';
 import Transaction from './pages/transactions/Transaction.jsx';
 import Verification from './pages/verification/Verification.jsx';
 import VerificationDetails from './pages/verification/VerificationDetails.jsx';
+import Fees from './pages/fees/Fees.jsx';
 
 const router = createBrowserRouter([
   { path: "/admin/login", element: <AdminLogin /> },
@@ -71,6 +72,13 @@ const router = createBrowserRouter([
       {
         path: "/projects/:projectId",
         element: <ProjectDetails />,
+      },
+      {
+        path: "/admin/fees", element: (
+          <Layout>
+            <Fees />
+          </Layout>
+        )
       },
       {
         path: "/admin/transaction", element: (
